@@ -1,0 +1,24 @@
+'''
+    # If the dataset contains two files then the second file is the centroids
+    # file.
+    if len(self.dataset) == 2:
+      print("datalen is 2")
+    else:
+      data = self.dataset[0]
+
+      # connect to HANA
+      serveraddr ='10.58.185.128'
+      serverport = 30715
+      usrname = 'SYSTEM'
+      password = 'manager'
+      connection = dbapi.connect(serveraddr, serverport, usrname, password)
+      print(connection)
+
+      # read csv file and create test table in HANA
+
+      with open(data, 'rb') as csvfile:
+        testreader = csv.reader(delimiter == ',')
+        for row in csvfile:
+          print row
+'''
+      # create kmeans proc
