@@ -1,0 +1,74 @@
+Guide of adding specific pal-func test to benchmark system
+
+I) add txt in config file
+	example: add kmeans to pal libray in config file(assume original config file contains method PCA)
+		***************************************************************************************
+		original file
+		---------------------------------------------------------------------------------------
+		# PAL:
+		# A Scalable C++  Machine Learning Library
+		library: pal
+		methods:
+    		    PCA:
+        	        run: ['timing']
+        		script: methods/pal/pca.py
+        		format: [csv, txt, arff]
+        		datasets:
+            		    - files: [ ['datasets/waveform.csv', 'datasets/waveform_centroids.csv'] ]
+              		options: '-t 8 -g 4 -i 1 -d 2 -m 100 -e 1.0E-6 -c 0.5'
+
+		---------------------------------------------------------------------------------------
+
+		add kmeans
+                ---------------------------------------------------------------------------------------
+                # PAL:
+		# A Scalable C++  Machine Learning Library
+		library: pal
+		methods:
+    		    PCA:
+        	        run: ['timing']
+        		script: methods/pal/pca.py
+        		format: [csv, txt, arff]
+        		datasets:
+            		    - files: [ ['datasets/waveform.csv', 'datasets/waveform_centroids.csv'] ]
+              		options: '-t 8 -g 4 -i 1 -d 2 -m 100 -e 1.0E-6 -c 0.5'
+
+    		    KMEANS:
+        	        run: ['timing']
+        		script: methods/pal/kmeans.py
+        		format: [csv, txt, arff]
+        		datasets:
+            		    - files: [ ['datasets/waveform.csv', 'datasets/waveform_centroids.csv'] ]
+              		options: '-t 8 -g 4 -i 1 -d 2 -m 100 -e 1.0E-6 -c 0.5'
+		---------------------------------------------------------------------------------------
+		
+		Notes:
+			files contains all test csv files
+			options is used for creation of control table
+
+		****************************************************************************************			
+
+II) add specific method(such as kemans.py, pca.py...) in benchmarks/methods/pal
+	I) create connection to hanadb(use odbc, pyodbc):
+		I) download odbc and pyodbc
+		II) install pyodbc to python3.4(benchmark system need python3.3+)
+		III) create driver for odbc
+			I) modify /etc/odbc.ini in following pattern:
+				[hana]
+				Driver	=/usr/sap/hdbclient/libodbcHDB.so(this path depends on where is hdbclient located)
+				ServerNode	=10.58.185.179(your own ip):30015(your own port num)
+		IV) now you can make connection in python
+			I) sample code:
+				import pyodbc
+				con = pyodbc.connect('DNS=hana, UID=usrname, PWD=password')
+                                cur = con.cursor()
+				cur.execute(...)
+	II) copy a file from directory methods/mlpack
+	III) redefine the function RunTiming
+		I) connect to hanadb and set the schema(this is important)
+		II) read csv file create all tables you need(you can use headparser.py to help your parsering)
+		III) create the procedure in hana and execute it. Return the execution time
+		
+III) done
+
+
