@@ -1,0 +1,14 @@
+# PAL:
+# A Scalable C++  Machine Learning Library
+library: pal
+methods:
+    KMEANS:
+        run: ['timing']
+        script: methods/pal/kmeans.py
+        format: [csv, txt, arff]
+        datasets:
+            - files: [ ['datasets/waveform.csv', 'datasets/waveform_centroids.csv'] ]
+              options: '-t 8 -g 4 -i 1 -d 2 -m 100 -e 1.0E-6 -c 0.5'
+
+
+
