@@ -1,6 +1,10 @@
 Guide of adding specific pal-func test to benchmark system
 
-I) add txt in config file
+I) install benchmark system
+	I) command line: git clone https://github.com/zoq/benchmarks.git
+	II) command line: git module update --init(This command is used to downlaod all the csv test file. This may takes up to 1 hour.)
+
+II) modify the config file
 	example: add kmeans to pal libray in config file(assume original config file contains method PCA)
 		***************************************************************************************
 		original file
@@ -48,7 +52,7 @@ I) add txt in config file
 
 		****************************************************************************************			
 
-II) add specific method(such as kemans.py, pca.py...) in benchmarks/methods/pal
+III) add specific method(such as kemans.py, pca.py...) in benchmarks/methods/pal
 	I) create connection to hanadb(use odbc, pyodbc):
 		I) download odbc and pyodbc
 		II) install pyodbc to python3.4(benchmark system need python3.3+)
@@ -63,12 +67,12 @@ II) add specific method(such as kemans.py, pca.py...) in benchmarks/methods/pal
 				con = pyodbc.connect('DNS=hana, UID=usrname, PWD=password')
                                 cur = con.cursor()
 				cur.execute(...)
-	II) copy a file from directory methods/mlpack
+	II) copy a specific method from directory benchmarks/mlpack/methods
 	III) redefine the function RunTiming
 		I) connect to hanadb and set the schema(this is important)
 		II) read csv file create all tables you need(you can use headparser.py to help your parsering)
 		III) create the procedure in hana and execute it. Return the execution time
 		
-III) done
+IV) done
 
 
