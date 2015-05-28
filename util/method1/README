@@ -1,6 +1,6 @@
 Import csv file to hanadb
 
-Add column id to input table and input table type
+Add ID column to input table and input table type
 
 Name of input table is uppercase of the name of dataset
      example: 
