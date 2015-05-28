@@ -1,4 +1,3 @@
-#load input
 
 from headparser import *
 
