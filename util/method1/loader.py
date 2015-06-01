@@ -28,7 +28,7 @@ class Loader(object):
     with open(self.dataset) as csvfile:
       reader = csv.reader(csvfile, delimiter=',')
       row = next(reader)
-     
+      
       # use headparser get all column name and type
       parser = Headparser(row)
       colstring = "ID INTEGER, " + parser.parserdata_string()
@@ -62,15 +62,20 @@ class Loader(object):
       	#insert data
       
       tablelen = len(row) + 1
-      query = 'INSERT INTO ' + tablename + ' VALUES({0})'
+      
+      query = "INSERT INTO " + tablename + " VALUES({0})"
       query = query.format(','.join('?' * tablelen))
       IDCOUNTER = 0
       #row = [str(IDCOUNTER)] + row
-      #cur.execute(query, row)    
+      #cur.execute(query, row)   
       for row in reader:
         IDCOUNTER += 1
         row = [str(IDCOUNTER)] + row
         cur.execute(query, row)
+      cur.commit()
+      cur.execute("SELECT * FROM "+ tablename)
+      testdata = cur.fetchall()
+      print(testdata)
        
       
     

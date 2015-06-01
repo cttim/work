@@ -1,4 +1,4 @@
-# head should only contain 4 types: DOUBLE, INTEGER, VCHAR(...) and CLOB
+# head should only contain 4 types: DOUBLE, INTEGER, VARCHAR(...) and CLOB
 # pass in list to create a headparser
 
 class Headparser(object):
