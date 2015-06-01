@@ -1,6 +1,7 @@
-import pyodbc
+# This class is used to create control table according to options
+# Pass cursor and options to the constructor of the class
 
-constr = 'DSN=hana;UID=SYSTEM;PWD=manager'
+import pyodbc
 
 class Optionparser():
   def __init__(self, option, cur):
@@ -9,6 +10,7 @@ class Optionparser():
     
   def executeoption(self):
     cur = self.cursor
+
     # create control table
     try:
       cur.execute("DROP TABLE #PAL_CONTROL_TBL")
@@ -23,6 +25,7 @@ class Optionparser():
 		)
     """)
 
+    # parse the options
     test = eval(self.options)
     executestring=""
     for key in test:
