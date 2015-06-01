@@ -127,6 +127,7 @@ class KMEANS(object):
 
     # set the schema
     cur.execute("SET SCHEMA DM_PAL")
+
     # read csv file and create input table in hana
     with open(data, newline='') as csvfile:
       reader = csv.reader(csvfile, delimiter=',')
