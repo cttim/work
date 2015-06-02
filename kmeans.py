@@ -12,6 +12,7 @@ import csv
 import pyodbc
 import time
 
+
 constr = 'DSN=hana;UID=SYSTEM;PWD=manager'
 
 # Import the util path, this method even works if the path contains symlinks to
@@ -24,6 +25,7 @@ if cmd_subfolder not in sys.path:
 from log import *
 from profiler import *
 from optionparser import *
+from dataname import *
 
 import shlex
 import subprocess
@@ -118,9 +120,14 @@ class KMEANS(object):
   '''
   def RunTiming(self, options):
 
-    # get data set
-    data = self.dataset[0]
+    # get data set and table name
+    data = self.dataset
+    dataname = getdataname(data)
+    if not (isinstance(dataname, dict)):      
+      raise Exception('in BPNN.py, dataname is not a dict')
 
+    table_name = dataname['DATANAME']
+    table_type_name = dataname['DATATYPENAME']
     # connect to hana
     con = pyodbc.connect(constr)
     cur = con.cursor()
@@ -133,43 +140,14 @@ class KMEANS(object):
       reader = csv.reader(csvfile, delimiter=',')
       row = next(reader)
 
-     # create general buf for PAL_KMEANS_DATA_T and PAL_KMEANS_CENTERS_T
+     # create general buf for PAL_KMEANS_CENTERS_T
       genbuf = "AS TABLE(ID INTEGER"
-
-     # create TYPE PAL_KMEANS_DATA_T
-      try:
-        cur.execute("DROP TYPE PAL_KMEANS_DATA_T")
-      except:
-        pass
       counter = 0
       tablelen = len(row)
       while(counter<tablelen):
         counter += 1
         colname = "v" + str(counter)
-        genbuf = genbuf + ", " + colname + " DOUBLE"
-      PAL_KMEANS_DATA_T = "CREATE TYPE PAL_KMEANS_DATA_T " + genbuf + ")"
-      cur.execute(PAL_KMEANS_DATA_T)
-
-      # create table PAL_KMEANS_DATA_TBL and add csv data into it
-      try:
-        cur.execute("DROP TABLE PAL_KMEANS_DATA_TBL")
-      except:
-        pass
-      cur.execute("CREATE COLUMN TABLE PAL_KMEANS_DATA_TBL LIKE PAL_KMEANS_DATA_T")
-      query = 'INSERT INTO PAL_KMEANS_DATA_TBL VALUES({0})'
-      query = query.format(','.join('?' * (tablelen+1)))
-      IDCOUNTER = 1
-      row = [str(IDCOUNTER)] + row
-      cur.execute(query, row)
-      for row in reader:
-        IDCOUNTER += 1
-        row = [IDCOUNTER] + row
-        cur.execute(query, row)
-        '''
-        cur.execute("SELECT * FROM PAL_KMEANS_DATA_TBL")
-        testdata = cur.fetchall()
-        print(testdata)
-        '''
+        genbuf = genbuf + ", " + colname + " " + row[counter-1]     
        
       # create TYPE PAL_CONTROL_T
       try:
@@ -245,7 +223,7 @@ class KMEANS(object):
 		"PARAMETER_TYPE" VARCHAR(100)
 		)
       """)
-      cur.execute("INSERT INTO PAL_KMEANS_PDATA_TBL VALUES (1, 'DM_PAL', 'PAL_KMEANS_DATA_T', 'IN')")
+      cur.execute("INSERT INTO PAL_KMEANS_PDATA_TBL VALUES (1, 'DM_PAL', '{0}', 'IN')".format(table_type_name))
       cur.execute("INSERT INTO PAL_KMEANS_PDATA_TBL VALUES (2, 'DM_PAL', 'PAL_CONTROL_T', 'IN')")
       cur.execute("INSERT INTO PAL_KMEANS_PDATA_TBL VALUES (3, 'DM_PAL', 'PAL_KMEANS_ASSIGNED_T', 'OUT')")
       cur.execute("INSERT INTO PAL_KMEANS_PDATA_TBL VALUES (4, 'DM_PAL', 'PAL_KMEANS_CENTERS_T', 'OUT')")
@@ -257,30 +235,8 @@ class KMEANS(object):
     cur.execute("""call "SYS".AFLLANG_WRAPPER_PROCEDURE_CREATE('AFLPAL', 'KMEANS', 'DM_PAL', 'PAL_KMEANS_PROC', PAL_KMEANS_PDATA_TBL)""")
 
     # create the control table
-    #options = "-t 8 -g 4 -i 1 -d 2 -m 100 -e 1.0E-6 -c 0.5"
-    parser = kmeanoptionparser(options)
-    parser.Getexecutestring()
-    if not (parser.rightoption):
-      return -1
-    try:
-      cur.execute("DROP TABLE #PAL_CONTROL_TBL")
-    except:
-      pass
-    cur.execute("""
-		CREATE LOCAL TEMPORARY COLUMN TABLE #PAL_CONTROL_TBL(
-		"NAME" VARCHAR (100), 
-		"INTARGS" INTEGER, 
-		"DOUBLEARGS" DOUBLE, 
-		"STRINGARGS" VARCHAR (100)
-		)
-    """)
-    cur.execute(parser.thread_num)
-    cur.execute(parser.group_num)
-    cur.execute(parser.init_type)
-    cur.execute(parser.dis_level)
-    cur.execute(parser.max_it)
-    cur.execute(parser.exit_threshold)
-    cur.execute(parser.cat_weight)
+    opt = Optionparser(options,cur)
+    opt.executeoption()
 
     # create TBL table
     try:
@@ -309,7 +265,7 @@ class KMEANS(object):
     # run the proc and count time
     starttime=time.time()
       
-    kmean_call = """CALL "DM_PAL".PAL_KMEANS_PROC(PAL_KMEANS_DATA_TBL, #PAL_CONTROL_TBL, PAL_KMEANS_ASSIGNED_TBL, PAL_KMEANS_CENTERS_TBL, PAL_KMEANS_SIL_CENTERS_TBL, PAL_KMEANS_STATISTIC_TBL) with OVERVIEW"""
+    kmean_call = """CALL "DM_PAL".PAL_KMEANS_PROC({}, #PAL_CONTROL_TBL, PAL_KMEANS_ASSIGNED_TBL, PAL_KMEANS_CENTERS_TBL, PAL_KMEANS_SIL_CENTERS_TBL, PAL_KMEANS_STATISTIC_TBL) with OVERVIEW""".format(table_name)
     cur.execute(kmean_call)
       
     elapsedtime=time.time() - starttime
