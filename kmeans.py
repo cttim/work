@@ -26,6 +26,7 @@ from log import *
 from profiler import *
 from optionparser import *
 from dataname import *
+from table import *
 
 import shlex
 import subprocess
@@ -150,34 +151,14 @@ class KMEANS(object):
         genbuf = genbuf + ", " + colname + " " + row[counter-1]     
        
       # create TYPE PAL_CONTROL_T
-      try:
-        cur.execute("DROP TYPE PAL_CONTROL_T")
-      except:
-        pass
-      cur.execute("""
-        	CREATE TYPE PAL_CONTROL_T AS TABLE( 
-		"NAME" VARCHAR (100), 
-		"INTARGS" INTEGER, 
-		"DOUBLEARGS" DOUBLE, 
-		"STRINGARGS" VARCHAR (100)
-		)
-      """)
+      PAL_CONTROL_T = Table(cur)
+      PAL_CONTROL_T.create_type("PAL_CONTROL_T", ["NAME VARCHAR(100)", "INTARGS INTEGER", "DOUBLEARGS DOUBLE", "STRINGARGS VARCHAR(100)"])
 
       # create TYPE PAL_KMEANS_ASSIGNED_T
-      try:
-        cur.execute("DROP TYPE PAL_KMEANS_ASSIGNED_T")
-      except:
-        pass
-      cur.execute("""
-		CREATE TYPE PAL_KMEANS_ASSIGNED_T AS TABLE(
-		"ID" INTEGER,
-		"CLUSTER" INTEGER,
-		"DISTANCE" DOUBLE,
-		"SLIGHT_SILHOUETTE" DOUBLE
-		)
-      """)
+      PAL_KMEANS_ASSIGNED_T = Table(cur)
+      PAL_KMEANS_ASSIGNED_T.create_type("PAL_KMEANS_ASSIGNED_T", ["ID INTEGER","CLUSTER INTEGER","DISTANCE DOUBLE","SLIGHT_SILHOUETTE DOUBLE"])
 
-      # create TYPE PAL_KMEANS_CENTERS_T
+      # create TYPE PAL_KMEANS_CENTERS_T (this is output table!)
       try:
         cur.execute("DROP TYPE PAL_KMEANS_CENTERS_T")
       except:
@@ -187,42 +168,17 @@ class KMEANS(object):
       cur.execute(PAL_KMEANS_CENTERS_T)
         
       # create TYPE PAL_KMEANS_SIL_CENTERS_T
-      try:
-        cur.execute("DROP TYPE PAL_KMEANS_SIL_CENTERS_T")
-      except:
-        pass
-      cur.execute("""
-		CREATE TYPE PAL_KMEANS_SIL_CENTERS_T AS TABLE(
-		"CLUSTER_ID" INTEGER,
-		"SLIGHT_SILHOUETTE" DOUBLE
-		)
-      """)
+      PAL_KMEANS_SIL_CENTERS_T = Table(cur)
+      PAL_KMEANS_SIL_CENTERS_T.create_type("PAL_KMEANS_SIL_CENTERS_T", ["CLUSTER_ID INTEGER","SLIGHT_SILHOUETTE DOUBLE"])
 
       # create TYPE PAL_KMEANS_STATISTIC_T
-      try:
-        cur.execute("DROP TYPE PAL_KMEANS_STATISTIC_T")
-      except:
-        pass
-      cur.execute("""
-		CREATE TYPE PAL_KMEANS_STATISTIC_T AS TABLE(
-		"NAME" VARCHAR(50),
-		"VALUE" DOUBLE
-		)
-      """)
-
+      PAL_KMEANS_STATISTIC_T = Table(cur)
+      PAL_KMEANS_STATISTIC_T.create_type("PAL_KMEANS_STATISTIC_T", ["NAME VARCHAR(50)","VALUE DOUBLE"])
+    
       # create table PAL_KMEANS_PDATA_TBL and insert TYPE into it
-      try:
-        cur.execute("DROP TABLE PAL_KMEANS_PDATA_TBL")
-      except:
-        pass
-      cur.execute("""
-		CREATE COLUMN TABLE PAL_KMEANS_PDATA_TBL(
-		"POSITION" INTEGER,
-		"SCHEMA_NAME" VARCHAR(100),
-		"TYPE_NAME" VARCHAR(100),
-		"PARAMETER_TYPE" VARCHAR(100)
-		)
-      """)
+      PAL_KMEANS_PDATA_TBL = Table(cur)
+      PAL_KMEANS_PDATA_TBL.create_table("PAL_KMEANS_PDATA_TBL", "COLUMN TABLE",["POSITION INTEGER","SCHEMA_NAME VARCHAR(100)","TYPE_NAME VARCHAR(100)","PARAMETER_TYPE VARCHAR(100)"])
+      
       cur.execute("INSERT INTO PAL_KMEANS_PDATA_TBL VALUES (1, 'DM_PAL', '{0}', 'IN')".format(table_type_name))
       cur.execute("INSERT INTO PAL_KMEANS_PDATA_TBL VALUES (2, 'DM_PAL', 'PAL_CONTROL_T', 'IN')")
       cur.execute("INSERT INTO PAL_KMEANS_PDATA_TBL VALUES (3, 'DM_PAL', 'PAL_KMEANS_ASSIGNED_T', 'OUT')")
