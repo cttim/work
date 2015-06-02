@@ -1,7 +1,0 @@
-# config file contains all csv file
-
-withid:
-    ['~/work/benchmarks/datasets/test1.csv', '~/work/benchmarks/datasets/test2.csv']
-
-withoutid:
-    ['~/work/benchmarks/datasets/adult.csv', '~/work/benchmarks/datasets/test.csv']
