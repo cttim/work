@@ -21,6 +21,7 @@ if cmd_subfolder not in sys.path:
 from log import *
 from profiler import *
 from optionparser import *
+from dataname import *
 
 import shlex
 import subprocess
@@ -30,7 +31,7 @@ import collections
 '''
 This class implements the K-Means clustering benchmark.
 '''
-class KMEANS(object):
+class BPNN(object):
 
   '''
   Create the K-Means Clustering benchmark instance, show some informations and
@@ -112,8 +113,14 @@ class KMEANS(object):
   '''
   def RunTiming(self, options):
 
-    # get data set
-    data = self.dataset[0]
+    # get data set and table name
+    data = self.dataset
+    dataname = getdataname(data)
+    if not (isinstance(dataname, dict)):      
+      raise Exception('in BPNN.py, dataname is not a dict')
+
+    table_name = dataname['DATANAME']
+    table_type_name = dataname['DATATYPENAME']
 
     # connect to hana
     con = pyodbc.connect(constr)
@@ -169,7 +176,7 @@ class KMEANS(object):
       "PARAMETER_TYPE" VARCHAR(100)
     )
     """)
-    cur.execute("INSERT INTO PAL_NN_PDATA_TBL VALUES (1, 'DM_PAL', 'ADULT_TYPE', 'IN')")
+    cur.execute("INSERT INTO PAL_NN_PDATA_TBL VALUES (1, 'DM_PAL', '{0}', 'IN')".format(table_type_name))
     cur.execute("INSERT INTO PAL_NN_PDATA_TBL VALUES (2, 'DM_PAL', 'PAL_CONTROL_T', 'IN')")
     cur.execute("INSERT INTO PAL_NN_PDATA_TBL VALUES (3, 'DM_PAL', 'PAL_TRAIN_NN_RESULT_T', 'OUT')")
     cur.execute("INSERT INTO PAL_NN_PDATA_TBL VALUES (4, 'DM_PAL', 'PAL_NN_MODEL_T', 'OUT')")
@@ -196,7 +203,7 @@ class KMEANS(object):
     # run the proc and count time
     starttime=time.time()
       
-    BPNN_call = """CALL "DM_PAL".PAL_NN_TRAIN(ADULT, #PAL_CONTROL_TBL, PAL_TRAIN_NN_RESULT_TBL, PAL_TRAIN_NN_MODEL_TBL) with OVERVIEW"""
+    BPNN_call = """CALL "DM_PAL".PAL_NN_TRAIN({0}, #PAL_CONTROL_TBL, PAL_TRAIN_NN_RESULT_TBL, PAL_TRAIN_NN_MODEL_TBL) with OVERVIEW""".format(table_name)
     cur.execute(BPNN_call)
       
     elapsedtime=time.time() - starttime
