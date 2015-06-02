@@ -1,5 +1,5 @@
 # This class is used to create control table according to options
-# Pass cursor and options to the constructor of the class
+# Pass cursor and options into the constructor of the class
 
 import pyodbc
 
