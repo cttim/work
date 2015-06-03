@@ -18,8 +18,8 @@ II) modify the config file
         		script: methods/pal/pca.py
         		format: [csv, txt, arff]
         		datasets:
-            		    - files: [ ['datasets/waveform.csv', 'datasets/waveform_centroids.csv'] ]
-              		options: '-t 8 -g 4 -i 1 -d 2 -m 100 -e 1.0E-6 -c 0.5'
+            		    - files: ['datasets/waveform.csv']
+              		options: 'THREAD_NUMBER=8, GROUP_NUMBER=4, INIT_TYPE=1, DISTANCE_LEVEL=2, MAX_ITERATION=100, EXIT_THRESHOLD=1.0E-6, CATEGORY_WEIGHTS=0.5'
 
 		---------------------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ II) modify the config file
         		format: [csv, txt, arff]
         		datasets:
             		    - files: [ ['datasets/waveform.csv', 'datasets/waveform_centroids.csv'] ]
-              		options: '-t 8 -g 4 -i 1 -d 2 -m 100 -e 1.0E-6 -c 0.5'
+              		options: 'THREAD_NUMBER=8, GROUP_NUMBER=4, INIT_TYPE=1, DISTANCE_LEVEL=2, MAX_ITERATION=100, EXIT_THRESHOLD=1.0E-6, CATEGORY_WEIGHTS=0.5'
 
     		    KMEANS:
         	        run: ['timing']
@@ -43,7 +43,7 @@ II) modify the config file
         		format: [csv, txt, arff]
         		datasets:
             		    - files: [ ['datasets/waveform.csv', 'datasets/waveform_centroids.csv'] ]
-              		options: '-t 8 -g 4 -i 1 -d 2 -m 100 -e 1.0E-6 -c 0.5'
+              		options: 'THREAD_NUMBER=8, GROUP_NUMBER=4, INIT_TYPE=1, DISTANCE_LEVEL=2, MAX_ITERATION=100, EXIT_THRESHOLD=1.0E-6, CATEGORY_WEIGHTS=0.5'
 		---------------------------------------------------------------------------------------
 		
 		Notes:
