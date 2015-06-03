@@ -141,43 +141,37 @@ class KMEANS(object):
       reader = csv.reader(csvfile, delimiter=',')
       row = next(reader)
 
-     # create general buf for PAL_KMEANS_CENTERS_T
-      genbuf = "AS TABLE(ID INTEGER"
+      # create general buf for PAL_KMEANS_CENTERS_T
+      genbuf = ["ID INTEGER"]
       counter = 0
       tablelen = len(row)
       while(counter<tablelen):
         counter += 1
         colname = "v" + str(counter)
-        genbuf = genbuf + ", " + colname + " " + row[counter-1]     
-       
+        coltype = row[counter -1]
+        column = colname + " " +coltype
+        genbuf.append(column)   
+      
+      # create a general table class to create all the tables
+      GENERAL_TABLE = Table(cur)     
+ 
       # create TYPE PAL_CONTROL_T
-      PAL_CONTROL_T = Table(cur)
-      PAL_CONTROL_T.create_type("PAL_CONTROL_T", ["NAME VARCHAR(100)", "INTARGS INTEGER", "DOUBLEARGS DOUBLE", "STRINGARGS VARCHAR(100)"])
+      GENERAL_TABLE.create_type("PAL_CONTROL_T", ["NAME VARCHAR(100)", "INTARGS INTEGER", "DOUBLEARGS DOUBLE", "STRINGARGS VARCHAR(100)"])
 
       # create TYPE PAL_KMEANS_ASSIGNED_T
-      PAL_KMEANS_ASSIGNED_T = Table(cur)
-      PAL_KMEANS_ASSIGNED_T.create_type("PAL_KMEANS_ASSIGNED_T", ["ID INTEGER","CLUSTER INTEGER","DISTANCE DOUBLE","SLIGHT_SILHOUETTE DOUBLE"])
+      GENERAL_TABLE.create_type("PAL_KMEANS_ASSIGNED_T", ["ID INTEGER","CLUSTER INTEGER","DISTANCE DOUBLE","SLIGHT_SILHOUETTE DOUBLE"])
 
       # create TYPE PAL_KMEANS_CENTERS_T (this is output table!)
-      try:
-        cur.execute("DROP TYPE PAL_KMEANS_CENTERS_T")
-      except:
-        pass
-      PAL_KMEANS_CENTERS_T = "CREATE TYPE PAL_KMEANS_CENTERS_T " + genbuf +")"
-      PAL_KMEANSCENTERS_T = "CREATE TYPE PAL_KMEANS_CENTERS_T AS TABLE(ID INTEGER, v1 double)"
-      cur.execute(PAL_KMEANS_CENTERS_T)
-        
+      GENERAL_TABLE.create_type("PAL_KMEANS_CENTERS_T", genbuf)
+  
       # create TYPE PAL_KMEANS_SIL_CENTERS_T
-      PAL_KMEANS_SIL_CENTERS_T = Table(cur)
-      PAL_KMEANS_SIL_CENTERS_T.create_type("PAL_KMEANS_SIL_CENTERS_T", ["CLUSTER_ID INTEGER","SLIGHT_SILHOUETTE DOUBLE"])
+      GENERAL_TABLE.create_type("PAL_KMEANS_SIL_CENTERS_T", ["CLUSTER_ID INTEGER","SLIGHT_SILHOUETTE DOUBLE"])
 
       # create TYPE PAL_KMEANS_STATISTIC_T
-      PAL_KMEANS_STATISTIC_T = Table(cur)
-      PAL_KMEANS_STATISTIC_T.create_type("PAL_KMEANS_STATISTIC_T", ["NAME VARCHAR(50)","VALUE DOUBLE"])
+      GENERAL_TABLE.create_type("PAL_KMEANS_STATISTIC_T", ["NAME VARCHAR(50)","VALUE DOUBLE"])
     
       # create table PAL_KMEANS_PDATA_TBL and insert TYPE into it
-      PAL_KMEANS_PDATA_TBL = Table(cur)
-      PAL_KMEANS_PDATA_TBL.create_table("PAL_KMEANS_PDATA_TBL", "COLUMN TABLE",["POSITION INTEGER","SCHEMA_NAME VARCHAR(100)","TYPE_NAME VARCHAR(100)","PARAMETER_TYPE VARCHAR(100)"])
+      GENERAL_TABLE.create_table("PAL_KMEANS_PDATA_TBL", "COLUMN TABLE",["POSITION INTEGER","SCHEMA_NAME VARCHAR(100)","TYPE_NAME VARCHAR(100)","PARAMETER_TYPE VARCHAR(100)"])
       
       cur.execute("INSERT INTO PAL_KMEANS_PDATA_TBL VALUES (1, 'DM_PAL', '{0}', 'IN')".format(table_type_name))
       cur.execute("INSERT INTO PAL_KMEANS_PDATA_TBL VALUES (2, 'DM_PAL', 'PAL_CONTROL_T', 'IN')")
@@ -195,29 +189,19 @@ class KMEANS(object):
     opt.executeoption()
 
     # create TBL table
-    try:
-      cur.execute("DROP TABLE PAL_KMEANS_ASSIGNED_TBL")
-    except:
-      pass
-    cur.execute("CREATE COLUMN TABLE PAL_KMEANS_ASSIGNED_TBL LIKE PAL_KMEANS_ASSIGNED_T")
+   
+      # create TBL PAL_KMEANS_ASSIGNED_TBL
+    GENERAL_TABLE.create_table_like("PAL_KMEANS_ASSIGNED_TBL","COLUMN TABLE","PAL_KMEANS_ASSIGNED_T")
 
-    try:
-      cur.execute("DROP TABLE PAL_KMEANS_CENTERS_TBL")
-    except:
-      pass
-    cur.execute("CREATE COLUMN TABLE PAL_KMEANS_CENTERS_TBL LIKE PAL_KMEANS_CENTERS_T")
+      # create TBL PAL_KMEANS_CENTERS_TBL
+    GENERAL_TABLE.create_table_like("PAL_KMEANS_CENTERS_TBL","COLUMN TABLE","PAL_KMEANS_CENTERS_T")
 
-    try:
-      cur.execute("DROP TABLE PAL_KMEANS_SIL_CENTERS_TBL")
-    except:
-      pass
-    cur.execute("CREATE COLUMN TABLE PAL_KMEANS_SIL_CENTERS_TBL LIKE PAL_KMEANS_SIL_CENTERS_T")
+      # create TBL PAL_KMEANS_SIL_CENTERS_TBL
+    GENERAL_TABLE.create_table_like("PAL_KMEANS_SIL_CENTERS_TBL","COLUMN TABLE","PAL_KMEANS_SIL_CENTERS_T")
 
-    try:
-      cur.execute("DROP TABLE PAL_KMEANS_STATISTIC_TBL")
-    except:
-      pass
-    cur.execute("CREATE COLUMN TABLE PAL_KMEANS_STATISTIC_TBL LIKE PAL_KMEANS_STATISTIC_T")
+      # create TBL PAL_KMEANS_STATISTIC_TBL
+    GENERAL_TABLE.create_table_like("PAL_KMEANS_STATISTIC_TBL","COLUMN TABLE","PAL_KMEANS_STATISTIC_T")    
+
     # run the proc and count time
     starttime=time.time()
       
