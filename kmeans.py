@@ -125,7 +125,7 @@ class KMEANS(object):
     data = self.dataset
     dataname = getdataname(data)
     if not (isinstance(dataname, dict)):      
-      raise Exception('in BPNN.py, dataname is not a dict')
+      raise Exception('In kmeans.py, dataname is not a dict')
 
     table_name = dataname['DATANAME']
     table_type_name = dataname['DATATYPENAME']
