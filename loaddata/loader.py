@@ -112,7 +112,7 @@ class Loader(object):
       datainput_execute = "CREATE COLUMN TABLE " + tablename + " LIKE " + tabletypename
       cur.execute(datainput_execute)
 
-      	#insert data
+      	# insert data
       
       tablelen = len(row)
       query = 'INSERT INTO ' + tablename + ' VALUES({0})'
