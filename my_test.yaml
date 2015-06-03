@@ -14,10 +14,10 @@ methods:
         script: methods/pal/bpnn.py
         format: [csv]
         datasets:
-            - files: ['methods/pal/util/loaddata/adult.csv']
+            - files: ['datasets/adult.csv']
               options: 'HIDDEN_LAYER_SIZE="10, 10", HIDDEN_LAYER_ACTIVE_FUNC=1, OUTPUT_LAYER_ACTIVE_FUNC=1, LEARNING_RATE=0.001, MOMENTUM_FACTOR=0.00001, FUNCTIONALITY=0, TRAINING_STYLE=1, MAX_ITERATION=100, NORMALIZATION=1, WEIGHT_INIT=1'
 
-            - files: ['methods/pal/util/loaddata/adult.csv']
+            - files: ['datasets/adult.csv']
               options: 'HIDDEN_LAYER_SIZE="10, 10, 10", HIDDEN_LAYER_ACTIVE_FUNC=1, OUTPUT_LAYER_ACTIVE_FUNC=1, LEARNING_RATE=0.001, MOMENTUM_FACTOR=0.00001, FUNCTIONALITY=0, TRAINING_STYLE=1, MAX_ITERATION=100, NORMALIZATION=1, WEIGHT_INIT=1'
 
 
