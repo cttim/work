@@ -9,6 +9,16 @@ methods:
         datasets:
             - files: ['datasets/test2.csv']
               options: 'THREAD_NUMBER=8, GROUP_NUMBER=4, INIT_TYPE=1, DISTANCE_LEVEL=2, MAX_ITERATION=100, EXIT_THRESHOLD=1.0E-6, CATEGORY_WEIGHTS=0.5'
+    BPNN:
+        run: ['timing']
+        script: methods/pal/bpnn.py
+        format: [csv]
+        datasets:
+            - files: ['methods/pal/util/loaddata/adult.csv']
+              options: 'HIDDEN_LAYER_SIZE="10, 10", HIDDEN_LAYER_ACTIVE_FUNC=1, OUTPUT_LAYER_ACTIVE_FUNC=1, LEARNING_RATE=0.001, MOMENTUM_FACTOR=0.00001, FUNCTIONALITY=0, TRAINING_STYLE=1, MAX_ITERATION=100, NORMALIZATION=1, WEIGHT_INIT=1'
+
+            - files: ['methods/pal/util/loaddata/adult.csv']
+              options: 'HIDDEN_LAYER_SIZE="10, 10, 10", HIDDEN_LAYER_ACTIVE_FUNC=1, OUTPUT_LAYER_ACTIVE_FUNC=1, LEARNING_RATE=0.001, MOMENTUM_FACTOR=0.00001, FUNCTIONALITY=0, TRAINING_STYLE=1, MAX_ITERATION=100, NORMALIZATION=1, WEIGHT_INIT=1'
 
 
 
