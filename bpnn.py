@@ -130,7 +130,7 @@ class BPNN(object):
     # set the schema
     cur.execute("SET SCHEMA DM_PAL")
    
-    # create a general table class to create all the table
+    # create a general table class to create all the tables
     GENERAL_TABLE = Table(cur)    
 
     # create type PAL_CONTROL_T
